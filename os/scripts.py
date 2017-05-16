@@ -18,17 +18,15 @@ def shell(cmd):
 
 
 def get_zone_uuid():
-    cmd = "$(zstack-cli QueryZone fields=uuid | grep 'uuid' | awk -F ',|:|\"' '{ print $5 }')"
+    cmd = "zstack-cli QueryZone fields=uuid | grep 'uuid' | awk -F ',|:|\"' '{ print $5 }'"
     return shell(cmd)
 
 
-def create_vxlan_pool(num):
+def create_vxlan_pool(num=100):
     zone_uuid = get_zone_uuid()
-    vxlan_pool_name = "name=test-vxlan-%s"
     for i in range(num):
-        create_vxlan_pool_cmd = "zstack-cli CreateL2VxlanNetworkPool zoneUuid=%s " % zone_uuid + \
-                                vxlan_pool_name % i
-        shell(create_vxlan_pool_cmd)
+        create_vxlan_pool_cmd = "zstack-cli CreateL2VxlanNetworkPool zoneUuid=%s name=test-vxlan-%s" % (zone_uuid, i)
+        print shell(create_vxlan_pool_cmd)
 
 
 def delete_vxlan_pool():
@@ -38,7 +36,7 @@ def delete_vxlan_pool():
     uuids = shell(vxlan_pool_uuids).split(' ')
     for uuid in uuids:
         delete_cmd = "zstack-cli DeleteL2Network uuid=%s" % uuid
-        shell(delete_cmd)
+        print shell(delete_cmd)
 
 
 init_cmd = "[ -f ~/.bash_profile ] && source ~/.bash_profile " \
