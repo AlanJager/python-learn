@@ -1,5 +1,5 @@
 import subprocess
-
+import multiprocessing
 
 def shell(cmd):
     process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -33,9 +33,12 @@ def delete_vxlan_pool():
     vxlan_pool_uuids = "zstack-cli QueryL2VxlanNetworkPool name~=test " \
                        "fields=uuid | grep uuid | awk -F ',|\"|:' '{print $5}'"
 
-    uuids = shell(vxlan_pool_uuids).split(' ')
+    result = shell(vxlan_pool_uuids)
+    uuids = result.split(' ')
     for uuid in uuids:
+        print delete_cmd
         delete_cmd = "zstack-cli DeleteL2Network uuid=%s" % uuid
+        multiprocessing.Process(target=shell, args=(delete_cmd,)).start()
         shell(delete_cmd)
 
 
